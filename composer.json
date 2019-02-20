@@ -17,6 +17,5 @@
         "psr-4": {
             "Woyteck\\": "src/"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
