@@ -1,0 +1,21 @@
+{
+    "name": "woyteck/db",
+    "description": "Simple db models",
+    "type": "library",
+    "authors": [
+        {
+            "name": "woyteck",
+            "email": "wojciech.hoffmann@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "ext-PDO": "^7.2"
+    },
+    "autoload": {
+        "psr-0": {
+            "Woyteck": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
