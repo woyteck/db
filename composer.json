@@ -8,13 +8,14 @@
             "email": "wojciech.hoffmann@gmail.com"
         }
     ],
+    "license": "MIT",
     "require": {
         "php": ">=7.1",
         "ext-PDO": "^7.2"
     },
     "autoload": {
-        "psr-0": {
-            "Woyteck": "src/"
+        "psr-4": {
+            "Woyteck\\": "src/"
         }
     },
     "minimum-stability": "dev"
