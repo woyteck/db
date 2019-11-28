@@ -204,10 +204,6 @@ class ModelFactory
             $query .= ' WHERE ' . implode(' AND ', $where);
         }
 
-        if ($tablePrimaryKey !== null) {
-            $query .= " GROUP BY `{$tableAlias}`.`{$tablePrimaryKey}`";
-        }
-
         if ($orderBy !== null) {
             $orderBy = preg_replace('/[^\da-zA-Z\-_]/i', '', $orderBy);
             $order = strtoupper($order);
