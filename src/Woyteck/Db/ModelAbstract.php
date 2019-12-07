@@ -136,7 +136,8 @@ class ModelAbstract
         $camels = [];
 
         foreach ($this->data as $key => $value) {
-            $camel = str_replace('-', '', ucwords($key, '-'));
+            $separator = '_';
+            $camel = str_replace($separator, '', ucwords($key, $separator));
             $camel = lcfirst($camel);
             $camels[$camel] = $value;
         }
