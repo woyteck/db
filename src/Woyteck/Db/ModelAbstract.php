@@ -131,6 +131,22 @@ class ModelAbstract
     /**
      * @return array
      */
+    public function toArrayCamelCased(): array
+    {
+        $camels = [];
+
+        foreach ($this->data as $key => $value) {
+            $camel = str_replace('-', '', ucwords($key, '-'));
+            $camel = lcfirst($camel);
+            $camels[$camel] = $value;
+        }
+
+        return $camels;
+    }
+
+    /**
+     * @return array
+     */
     private function getJoinedFieldNames(): array
     {
         $fieldNames = [];
