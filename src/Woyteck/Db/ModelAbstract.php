@@ -136,10 +136,24 @@ class ModelAbstract
         $camels = [];
 
         foreach ($this->data as $key => $value) {
+            $type = 'string';
+            if (is_int($value)) {
+                $type = 'int';
+            }
+            if (is_float($value)) {
+                $type = 'float';
+            }
+
             $separator = '_';
             $camel = str_replace($separator, '', ucwords($key, $separator));
             $camel = lcfirst($camel);
-            $camels[$camel] = $value;
+            if ($type === 'int') {
+                $camels[$camel] = (int) $value;
+            } elseif ($type === 'float') {
+                $camels[$camel] = (float) $value;
+            } else {
+                $camels[$camel] = $value;
+            }
         }
 
         return $camels;
