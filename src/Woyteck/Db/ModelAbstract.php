@@ -108,7 +108,7 @@ class ModelAbstract
                 }
 
                 $wheres[] = $fieldName . "=:" . $fieldName;
-                $vars[$fieldName] = $fieldValue === null ? 'null' : $fieldValue;
+                $vars[$fieldName] = $fieldValue;
             }
             $query = "UPDATE {$tableName} SET " . implode(',', $wheres) . " WHERE {$primaryKeyField}=:primary_key";
 
