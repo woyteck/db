@@ -11,6 +11,7 @@ class ModelFactory
     const OPERATOR_IN = 'IN';
     const OPERATOR_GREATER_THAN = '>';
     const OPERATOR_LOWER_THAN = '<';
+    const OPERATOR_IS_NULL = 'IS';
 
     /**
      * @var PDO
@@ -164,7 +165,9 @@ class ModelFactory
         $query = "SELECT SQL_CALC_FOUND_ROWS {$implodedColumns} FROM `{$tableName}` {$tableAlias}";
         foreach ($params as $field => $value) {
             $operator = self::OPERATOR_EQUALS;
-            if (stripos($field, 'greater_') === 0) {
+            if ($value === null) {
+                $operator = self::OPERATOR_IS_NULL;
+            } elseif (stripos($field, 'greater_') === 0) {
                 $field = str_replace('greater_', '', $field);
                 $operator = self::OPERATOR_GREATER_THAN;
             } elseif (stripos($field, 'lower_') === 0) {
@@ -174,7 +177,9 @@ class ModelFactory
                 $operator = self::OPERATOR_IN;
             }
 
-            if ($operator == self::OPERATOR_EQUALS) {
+            if ($operator == self::OPERATOR_IS_NULL) {
+                $where[] = $tableAlias . '.' . $field . ' IS NULL';
+            } elseif ($operator == self::OPERATOR_EQUALS) {
                 $where[] = $tableAlias . '.' . $field . '=:' . $field;
                 $vars[$field] = $value;
             } elseif ($operator == self::OPERATOR_GREATER_THAN) {
