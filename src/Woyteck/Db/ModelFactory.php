@@ -12,6 +12,7 @@ class ModelFactory
     const OPERATOR_GREATER_THAN = '>';
     const OPERATOR_LOWER_THAN = '<';
     const OPERATOR_IS_NULL = 'IS';
+    const OPERATOR_LIKE = 'LIKE';
 
     /**
      * @var PDO
@@ -173,6 +174,9 @@ class ModelFactory
             } elseif (stripos($field, 'lower_') === 0) {
                 $field = str_replace('lower_', '', $field);
                 $operator = self::OPERATOR_LOWER_THAN;
+            } elseif (stripos($field, 'like_') === 0) {
+                $field = str_replace('like_', '', $field);
+                $operator = self::OPERATOR_LIKE;
             } elseif (is_array($value)) {
                 $operator = self::OPERATOR_IN;
             }
@@ -190,6 +194,8 @@ class ModelFactory
                 $vars[$field] = $value;
             } elseif ($operator == self::OPERATOR_IN) {
                 $where[] = $tableAlias . '.' . $field . " IN ('" . implode("','", $value) . "')";
+            } elseif ($operator == self::OPERATOR_LIKE) {
+                $where[] = $tableAlias . '.' . $field . ' LIKE :' . $field;
             }
         }
 
