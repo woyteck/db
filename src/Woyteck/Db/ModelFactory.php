@@ -196,6 +196,7 @@ class ModelFactory
                 $where[] = $tableAlias . '.' . $field . " IN ('" . implode("','", $value) . "')";
             } elseif ($operator == self::OPERATOR_LIKE) {
                 $where[] = $tableAlias . '.' . $field . ' LIKE :' . $field;
+                $vars[$field] = $value;
             }
         }
 
