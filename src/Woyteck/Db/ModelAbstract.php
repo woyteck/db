@@ -129,6 +129,14 @@ class ModelAbstract
     }
 
     /**
+     * @return string
+     */
+    public function getHash(): string
+    {
+        return md5(serialize($this->data));
+    }
+
+    /**
      * @return array
      */
     public function toArrayCamelCased(): array
