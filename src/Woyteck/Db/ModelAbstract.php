@@ -129,11 +129,23 @@ class ModelAbstract
     }
 
     /**
+     * @param array|string[]|null $fields
      * @return string
      */
-    public function getHash(): string
+    public function getHash(array $fields = null): string
     {
-        return md5(serialize($this->data));
+        if ($fields === null) {
+            return md5(serialize($this->data));
+        }
+
+        $array = [];
+        foreach ($fields as $field) {
+            if (isset($this->data[$field])) {
+                $array[$field] = $this->data[$field];
+            }
+        }
+
+        return md5(serialize($array));
     }
 
     /**
