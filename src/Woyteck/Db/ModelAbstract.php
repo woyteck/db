@@ -141,7 +141,11 @@ class ModelAbstract
         $array = [];
         foreach ($fields as $field) {
             if (isset($this->data[$field])) {
-                $array[$field] = $this->data[$field];
+                if (is_float($this->data[$field])) {
+                    $array[$field] = (string) $this->data[$field];
+                } else {
+                    $array[$field] = $this->data[$field];
+                }
             }
         }
 
