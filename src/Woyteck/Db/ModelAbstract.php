@@ -6,41 +6,26 @@ use PDO;
 
 class ModelAbstract
 {
-    const JOIN_TYPE_LEFT = 'LEFT';
-    const JOIN_TYPE_RIGHT = 'RIGHT';
-    const JOIN_TYPE_INNER = 'INNER';
+    public const JOIN_TYPE_LEFT = 'LEFT';
+    public const JOIN_TYPE_RIGHT = 'RIGHT';
+    public const JOIN_TYPE_INNER = 'INNER';
 
     public static $joins = [];
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public static $tableName;
 
-    /**
-     * @var string
-     */
     public static $tableAlias = 't';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public static $primaryKey;
 
-    /**
-     * @var array
-     */
     public $columns = [];
 
-    /**
-     * @var PDO
-     */
-    private $db;
-
-    /**
-     * @var array
-     */
     private $data = [];
+
+    /** @var PDO */
+    protected $db;
 
     public function __construct(PDO $pdo)
     {
@@ -51,7 +36,7 @@ class ModelAbstract
      * @param string $name
      * @return string|int|float|null
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         return isset($this->data[$name]) ? $this->data[$name] : null;
     }
@@ -61,16 +46,13 @@ class ModelAbstract
      * @param string|int|float $value
      * @return $this
      */
-    public function __set($name, $value)
+    public function __set(string $name, $value)
     {
         $this->data[$name] = $value;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function save(): int
     {
         $tableName = static::$tableName;
@@ -120,9 +102,6 @@ class ModelAbstract
         return (int) $this->{$primaryKeyField};
     }
 
-    /**
-     * @return array
-     */
     public function toArray()
     {
         return $this->data;
@@ -152,9 +131,6 @@ class ModelAbstract
         return md5(serialize($array));
     }
 
-    /**
-     * @return array
-     */
     public function toArrayCamelCased(): array
     {
         $camels = [];
@@ -183,9 +159,6 @@ class ModelAbstract
         return $camels;
     }
 
-    /**
-     * @return array
-     */
     private function getJoinedFieldNames(): array
     {
         $fieldNames = [];
