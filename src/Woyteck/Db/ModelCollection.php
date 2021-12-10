@@ -2,8 +2,6 @@
 
 namespace Woyteck\Db;
 
-use ArrayIterator;
-use Traversable;
 use Woyteck\ArrayInterface;
 
 class ModelCollection implements \Iterator, ArrayInterface
@@ -22,7 +20,7 @@ class ModelCollection implements \Iterator, ArrayInterface
      * @param mixed $offset
      * @return bool
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->array[$offset]);
     }
@@ -31,7 +29,7 @@ class ModelCollection implements \Iterator, ArrayInterface
      * @param mixed $offset
      * @return mixed|null
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return isset($this->array[$offset]) ? $this->array[$offset] : null;
     }
@@ -40,7 +38,7 @@ class ModelCollection implements \Iterator, ArrayInterface
      * @param mixed $offset
      * @param mixed $value
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if ($offset === null) {
             $this->array[] = $value;
@@ -52,28 +50,20 @@ class ModelCollection implements \Iterator, ArrayInterface
     /**
      * @param mixed $offset
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->array[$offset]);
     }
 
-//    /**
-//     * @return ArrayIterator|Traversable
-//     */
-//    public function getIterator()
-//    {
-//        return new ArrayIterator($this);
-//    }
-
     /**
      * @return mixed
      */
-    public function current()
+    public function current(): mixed
     {
         return $this->array[$this->pointer];
     }
 
-    public function next()
+    public function next(): void
     {
         ++$this->pointer;
     }
@@ -81,7 +71,7 @@ class ModelCollection implements \Iterator, ArrayInterface
     /**
      * @return int
      */
-    public function key()
+    public function key(): mixed
     {
         return $this->pointer;
     }
@@ -89,17 +79,17 @@ class ModelCollection implements \Iterator, ArrayInterface
     /**
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         return isset($this->array[$this->pointer]);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->pointer = 0;
     }
 
-    public function count()
+    public function count(): int
     {
         return count($this->array);
     }
