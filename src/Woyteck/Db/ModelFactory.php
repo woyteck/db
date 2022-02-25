@@ -8,11 +8,14 @@ use PDOStatement;
 class ModelFactory
 {
     const OPERATOR_EQUALS = '=';
+    const OPERATOR_NOT_EQUALS = '!=';
     const OPERATOR_IN = 'IN';
+    const OPERATOR_NOT_IN = 'NOT_IN';
     const OPERATOR_GREATER_THAN = '>';
     const OPERATOR_LOWER_THAN = '<';
     const OPERATOR_IS_NULL = 'IS';
     const OPERATOR_LIKE = 'LIKE';
+    const OPERATOR_NOT_LIKE = 'NOT_LIKE';
 
     /**
      * @var PDO
@@ -177,14 +180,26 @@ class ModelFactory
             } elseif (stripos($field, 'like_') === 0) {
                 $field = str_replace('like_', '', $field);
                 $operator = self::OPERATOR_LIKE;
+            } elseif (stripos($field, 'not_like_') === 0) {
+                $field = str_replace('not_like_', '', $field);
+                $operator = self::OPERATOR_NOT_LIKE;
+            } elseif (stripos($field, 'not_') === 0) {
+                $field = str_replace('not_', '', $field);
+                $operator = self::OPERATOR_NOT_EQUALS;
             } elseif (is_array($value)) {
                 $operator = self::OPERATOR_IN;
+            } elseif (stripos($field, 'not_in_') === 0 && is_array($value)) {
+                $field = str_replace('not_in_', '', $field);
+                $operator = self::OPERATOR_NOT_IN;
             }
 
             if ($operator == self::OPERATOR_IS_NULL) {
                 $where[] = $tableAlias . '.' . $field . ' IS NULL';
             } elseif ($operator == self::OPERATOR_EQUALS) {
                 $where[] = $tableAlias . '.' . $field . '=:' . $field;
+                $vars[$field] = $value;
+            } elseif ($operator == self::OPERATOR_NOT_EQUALS) {
+                $where[] = $tableAlias . '.' . $field . '!=:' . $field;
                 $vars[$field] = $value;
             } elseif ($operator == self::OPERATOR_GREATER_THAN) {
                 $where[] = $tableAlias . '.' . $field . '>:' . $field;
@@ -194,8 +209,13 @@ class ModelFactory
                 $vars[$field] = $value;
             } elseif ($operator == self::OPERATOR_IN) {
                 $where[] = $tableAlias . '.' . $field . " IN ('" . implode("','", $value) . "')";
+            } elseif ($operator == self::OPERATOR_NOT_IN) {
+                $where[] = $tableAlias . '.' . $field . " NOT IN ('" . implode("','", $value) . "')";
             } elseif ($operator == self::OPERATOR_LIKE) {
                 $where[] = $tableAlias . '.' . $field . ' LIKE :' . $field;
+                $vars[$field] = $value;
+            } elseif ($operator == self::OPERATOR_NOT_LIKE) {
+                $where[] = $tableAlias . '.' . $field . ' NOT LIKE :' . $field;
                 $vars[$field] = $value;
             }
         }
