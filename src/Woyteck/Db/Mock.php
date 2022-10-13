@@ -8,5 +8,6 @@ class Mock
     public const MOCK_ONE = 'one';
     public const MOCK_MANY = 'many';
 
-    public static $mock = [];
+    /** @var array */
+    public static $mock;
 }

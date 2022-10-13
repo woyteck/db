@@ -56,11 +56,14 @@ class ModelFactory
     {
         $this->modelsCount = 0;
 
-        if (isset(Mock::$mock[$className][Mock::MOCK_ONE]) && is_array(Mock::$mock[$className][Mock::MOCK_ONE])) {
-            $data = Mock::$mock[$className][Mock::MOCK_ONE];
-            $this->modelsCount = 1;
-
-            return $this->create($className, $data);
+        if (Mock::$mock !== null) {
+            if (isset(Mock::$mock[$className][Mock::MOCK_ONE]) && is_array(Mock::$mock[$className][Mock::MOCK_ONE])) {
+                $data = Mock::$mock[$className][Mock::MOCK_ONE];
+                $this->modelsCount = 1;
+                return $this->create($className, $data);
+            } else {
+                return null;
+            }
         } else {
             $statement = $this->query($className, $params, $forUpdate, 1);
             if ($statement->rowCount() > 0) {
@@ -89,8 +92,11 @@ class ModelFactory
     {
         $collection = new ModelCollection();
 
-        if (isset(Mock::$mock[$className][Mock::MOCK_MANY]) && is_array(Mock::$mock[$className][Mock::MOCK_MANY])) {
-            $rows = Mock::$mock[$className][Mock::MOCK_MANY];
+        if (Mock::$mock !== null) {
+            $rows = [];
+            if (isset(Mock::$mock[$className][Mock::MOCK_MANY]) && is_array(Mock::$mock[$className][Mock::MOCK_MANY])) {
+                $rows = Mock::$mock[$className][Mock::MOCK_MANY];
+            }
             $this->modelsCount = count($rows);
         } else {
             $statement = $this->query($className, $params, $forUpdate, $limit, $offset, $sortBy, $sortOrder);
