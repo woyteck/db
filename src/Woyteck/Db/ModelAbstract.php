@@ -64,39 +64,43 @@ class ModelAbstract
             $insert = false;
         }
 
-        if ($insert === true) {
-            $wheres = [];
-            foreach ($this->data as $fieldName => $fieldValue) {
-                $wheres[] = ":" . $fieldName;
-            }
-            $query = "INSERT INTO `{$tableName}` (" . implode(', ', array_keys($this->data)) . ")"
-                . " VALUES (" . implode(', ', $wheres) . ")";
-
-            $statement = $this->db->prepare($query);
-            $statement->execute($this->data);
-
-            if ($primaryKeyField !== null) {
-                $this->{$primaryKeyField} = (int) $this->db->lastInsertId();
-            }
+        if (isset(Mock::$mock[get_class($this)][Mock::MOCK_ONE])) {
+            Mock::$mock[get_class($this)][Mock::MOCK_ONE] = $this->data;
         } else {
-            $wheres = [];
-            $vars = [];
-            foreach ($this->data as $fieldName => $fieldValue) {
-                if ($fieldName == $primaryKeyField) {
-                    continue;
+            if ($insert === true) {
+                $wheres = [];
+                foreach ($this->data as $fieldName => $fieldValue) {
+                    $wheres[] = ":" . $fieldName;
                 }
-                if (in_array($fieldName, $this->getJoinedFieldNames())) {
-                    continue;
-                }
+                $query = "INSERT INTO `{$tableName}` (" . implode(', ', array_keys($this->data)) . ")"
+                    . " VALUES (" . implode(', ', $wheres) . ")";
 
-                $wheres[] = $fieldName . "=:" . $fieldName;
-                $vars[$fieldName] = $fieldValue;
+                $statement = $this->db->prepare($query);
+                $statement->execute($this->data);
+
+                if ($primaryKeyField !== null) {
+                    $this->{$primaryKeyField} = (int) $this->db->lastInsertId();
+                }
+            } else {
+                $wheres = [];
+                $vars = [];
+                foreach ($this->data as $fieldName => $fieldValue) {
+                    if ($fieldName == $primaryKeyField) {
+                        continue;
+                    }
+                    if (in_array($fieldName, $this->getJoinedFieldNames())) {
+                        continue;
+                    }
+
+                    $wheres[] = $fieldName . "=:" . $fieldName;
+                    $vars[$fieldName] = $fieldValue;
+                }
+                $query = "UPDATE {$tableName} SET " . implode(',', $wheres) . " WHERE {$primaryKeyField}=:primary_key";
+
+                $statement = $this->db->prepare($query);
+                $vars['primary_key'] = $this->data[$primaryKeyField];
+                $statement->execute($vars);
             }
-            $query = "UPDATE {$tableName} SET " . implode(',', $wheres) . " WHERE {$primaryKeyField}=:primary_key";
-
-            $statement = $this->db->prepare($query);
-            $vars['primary_key'] = $this->data[$primaryKeyField];
-            $statement->execute($vars);
         }
 
         return (int) $this->{$primaryKeyField};

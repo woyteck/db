@@ -7,8 +7,6 @@ use PDOStatement;
 
 class ModelFactory
 {
-    public const MOCK_ONE = 'one';
-    public const MOCK_MANY = 'many';
     private const OPERATOR_EQUALS = '=';
     private const OPERATOR_NOT_EQUALS = '!=';
     private const OPERATOR_IN = 'IN';
@@ -25,16 +23,9 @@ class ModelFactory
     /** @var int */
     private $modelsCount;
 
-    private $mock = [];
-
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
-    }
-
-    public function setMock(array $mock)
-    {
-        $this->mock = $mock;
     }
 
     /**
@@ -65,8 +56,8 @@ class ModelFactory
     {
         $this->modelsCount = 0;
 
-        if (isset($this->mock[$className][self::MOCK_ONE]) && is_array($this->mock[$className][self::MOCK_ONE])) {
-            $data = $this->mock[$className][self::MOCK_ONE];
+        if (isset(Mock::$mock[$className][Mock::MOCK_ONE]) && is_array(Mock::$mock[$className][Mock::MOCK_ONE])) {
+            $data = Mock::$mock[$className][Mock::MOCK_ONE];
             $this->modelsCount = 1;
 
             return $this->create($className, $data);
@@ -98,8 +89,8 @@ class ModelFactory
     {
         $collection = new ModelCollection();
 
-        if (isset($this->mock[$className][self::MOCK_MANY]) && is_array($this->mock[$className][self::MOCK_MANY])) {
-            $rows = $this->mock[$className][self::MOCK_MANY];
+        if (isset(Mock::$mock[$className][Mock::MOCK_MANY]) && is_array(Mock::$mock[$className][Mock::MOCK_MANY])) {
+            $rows = Mock::$mock[$className][Mock::MOCK_MANY];
             $this->modelsCount = count($rows);
         } else {
             $statement = $this->query($className, $params, $forUpdate, $limit, $offset, $sortBy, $sortOrder);
