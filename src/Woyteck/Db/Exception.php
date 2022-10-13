@@ -2,7 +2,7 @@
 
 namespace Woyteck\Db;
 
-class Exception extends \Woyteck\Exception
+class Exception extends \Exception
 {
 
 }

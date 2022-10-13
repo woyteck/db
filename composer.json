@@ -1,5 +1,6 @@
 {
     "name": "woyteck/db",
+    "version": "1.0.0",
     "description": "Simple db models",
     "type": "library",
     "authors": [

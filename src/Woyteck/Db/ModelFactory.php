@@ -7,33 +7,34 @@ use PDOStatement;
 
 class ModelFactory
 {
-    const OPERATOR_EQUALS = '=';
-    const OPERATOR_NOT_EQUALS = '!=';
-    const OPERATOR_IN = 'IN';
-    const OPERATOR_NOT_IN = 'NOT_IN';
-    const OPERATOR_GREATER_THAN = '>';
-    const OPERATOR_LOWER_THAN = '<';
-    const OPERATOR_IS_NULL = 'IS';
-    const OPERATOR_LIKE = 'LIKE';
-    const OPERATOR_NOT_LIKE = 'NOT_LIKE';
+    public const MOCK_ONE = 'one';
+    public const MOCK_MANY = 'many';
+    private const OPERATOR_EQUALS = '=';
+    private const OPERATOR_NOT_EQUALS = '!=';
+    private const OPERATOR_IN = 'IN';
+    private const OPERATOR_NOT_IN = 'NOT_IN';
+    private const OPERATOR_GREATER_THAN = '>';
+    private const OPERATOR_LOWER_THAN = '<';
+    private const OPERATOR_IS_NULL = 'IS';
+    private const OPERATOR_LIKE = 'LIKE';
+    private const OPERATOR_NOT_LIKE = 'NOT_LIKE';
 
-    /**
-     * @var PDO
-     */
+    /** @var PDO */
     private $pdo;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $modelsCount;
 
-    /**
-     * ModelFactory constructor.
-     * @param PDO $pdo
-     */
+    private $mock = [];
+
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+    }
+
+    public function setMock(array $mock)
+    {
+        $this->mock = $mock;
     }
 
     /**
@@ -60,15 +61,23 @@ class ModelFactory
      * @return ModelAbstract|null
      * @throws Exception
      */
-    public function getOne(string $className, array $params = [], $forUpdate = false): ?ModelAbstract
+    public function getOne(string $className, array $params = [], bool $forUpdate = false): ?ModelAbstract
     {
         $this->modelsCount = 0;
 
-        $statement = $this->query($className, $params, $forUpdate, 1);
-        if ($statement->rowCount() > 0) {
-            $this->modelsCount = $this->getFoundRows();
+        if (isset($this->mock[$className][self::MOCK_ONE]) && is_array($this->mock[$className][self::MOCK_ONE])) {
+            $data = $this->mock[$className][self::MOCK_ONE];
+            $this->modelsCount = 1;
 
-            return $this->create($className, $statement->fetch());
+            return $this->create($className, $data);
+        } else {
+            $statement = $this->query($className, $params, $forUpdate, 1);
+            if ($statement->rowCount() > 0) {
+                $this->modelsCount = $this->getFoundRows();
+                $data = $statement->fetch();
+
+                return $this->create($className, $data);
+            }
         }
 
         return null;
@@ -85,13 +94,19 @@ class ModelFactory
      * @return ModelCollection
      * @throws Exception
      */
-    public function getMany(string $className, array $params = [], $forUpdate = false, int $limit = null, int $offset = null, string $sortBy = null, string $sortOrder = 'ASC'): ModelCollection
+    public function getMany(string $className, array $params = [], bool $forUpdate = false, int $limit = null, int $offset = null, string $sortBy = null, string $sortOrder = 'ASC'): ModelCollection
     {
-        $statement = $this->query($className, $params, $forUpdate, $limit, $offset, $sortBy, $sortOrder);
-        $rows = $statement->fetchAll();
-        $this->modelsCount = $this->getFoundRows();
-
         $collection = new ModelCollection();
+
+        if (isset($this->mock[$className][self::MOCK_MANY]) && is_array($this->mock[$className][self::MOCK_MANY])) {
+            $rows = $this->mock[$className][self::MOCK_MANY];
+            $this->modelsCount = count($rows);
+        } else {
+            $statement = $this->query($className, $params, $forUpdate, $limit, $offset, $sortBy, $sortOrder);
+            $rows = $statement->fetchAll();
+            $this->modelsCount = $this->getFoundRows();
+        }
+
         foreach ($rows as $row) {
             $collection[] = $this->create($className, $row);
         }
@@ -99,26 +114,17 @@ class ModelFactory
         return $collection;
     }
 
-    /**
-     * @return int
-     */
-    public function getModelsCount()
+    public function getModelsCount(): ?int
     {
         return $this->modelsCount;
     }
 
-    /**
-     * @return PDO
-     */
-    public function getAdapter()
+    public function getAdapter(): PDO
     {
         return $this->pdo;
     }
 
-    /**
-     * @return int
-     */
-    private function getFoundRows()
+    private function getFoundRows(): int
     {
         $statement = $this->pdo->prepare('SELECT FOUND_ROWS() as found_rows');
         $statement->execute();
@@ -138,7 +144,7 @@ class ModelFactory
      * @return PDOStatement
      * @throws Exception
      */
-    private function query(string $className, array $params = [], $forUpdate = false, int $limit = null, int $offset = null, string $orderBy = null, string $order = 'ASC')
+    private function query(string $className, array $params = [], bool $forUpdate = false, int $limit = null, int $offset = null, string $orderBy = null, string $order = 'ASC')
     {
         /** @var ModelAbstract $className */
         $tableName = $className::$tableName;
