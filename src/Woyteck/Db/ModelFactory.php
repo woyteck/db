@@ -57,13 +57,14 @@ class ModelFactory
         $this->modelsCount = 0;
 
         if (Mock::$mock !== null) {
-            if (isset(Mock::$mock[$className][Mock::MOCK_ONE]) && is_array(Mock::$mock[$className][Mock::MOCK_ONE])) {
-                $data = Mock::$mock[$className][Mock::MOCK_ONE];
+            $data = Mock::getOne($className, $params);
+            if ($data !== null) {
                 $this->modelsCount = 1;
+
                 return $this->create($className, $data);
-            } else {
-                return null;
             }
+
+            return null;
         } else {
             $statement = $this->query($className, $params, $forUpdate, 1);
             if ($statement->rowCount() > 0) {
@@ -93,10 +94,7 @@ class ModelFactory
         $collection = new ModelCollection();
 
         if (Mock::$mock !== null) {
-            $rows = [];
-            if (isset(Mock::$mock[$className][Mock::MOCK_MANY]) && is_array(Mock::$mock[$className][Mock::MOCK_MANY])) {
-                $rows = Mock::$mock[$className][Mock::MOCK_MANY];
-            }
+            $rows = Mock::getMany($className, $params);
             $this->modelsCount = count($rows);
         } else {
             $statement = $this->query($className, $params, $forUpdate, $limit, $offset, $sortBy, $sortOrder);

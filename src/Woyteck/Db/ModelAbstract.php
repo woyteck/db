@@ -64,8 +64,8 @@ class ModelAbstract
             $insert = false;
         }
 
-        if (isset(Mock::$mock[get_class($this)][Mock::MOCK_ONE])) {
-            Mock::$mock[get_class($this)][Mock::MOCK_ONE] = $this->data;
+        if (Mock::$mock !== null) {
+            Mock::save($this);
         } else {
             if ($insert === true) {
                 $wheres = [];
