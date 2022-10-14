@@ -70,7 +70,9 @@ class Mock
         if ($found !== null) {
             self::$mock[$className][$found] = $modelArray;
         } else {
-            self::$mock[$className][$lastPrimaryKeyValue + 1] = $modelArray;
+            $newPrimaryKeyValue = $lastPrimaryKeyValue + 1;
+            $modelArray[$primaryKeyField] = $newPrimaryKeyValue;
+            self::$mock[$className][$newPrimaryKeyValue] = $modelArray;
         }
 
         return $modelArray[$primaryKeyField];
