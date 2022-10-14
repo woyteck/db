@@ -65,7 +65,7 @@ class ModelAbstract
         }
 
         if (Mock::$mock !== null) {
-            Mock::save($this);
+            $this->{$primaryKeyField} = Mock::save($this);
         } else {
             if ($insert === true) {
                 $wheres = [];
