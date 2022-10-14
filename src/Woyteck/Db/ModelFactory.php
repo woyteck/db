@@ -119,6 +119,33 @@ class ModelFactory
         return $this->pdo;
     }
 
+    public function beginTransaction(): void
+    {
+        if (Mock::$mock !== null) {
+            return;
+        }
+
+        $this->pdo->beginTransaction();
+    }
+
+    public function rollBack(): void
+    {
+        if (Mock::$mock !== null) {
+            return;
+        }
+
+        $this->pdo->rollBack();
+    }
+
+    public function commit(): void
+    {
+        if (Mock::$mock !== null) {
+            return;
+        }
+
+        $this->pdo->commit();
+    }
+
     private function getFoundRows(): int
     {
         $statement = $this->pdo->prepare('SELECT FOUND_ROWS() as found_rows');
