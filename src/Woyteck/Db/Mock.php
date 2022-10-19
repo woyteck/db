@@ -16,7 +16,7 @@ class Mock
 
         foreach (self::$mock[$className] as $mockedArray) {
             foreach ($params as $key => $param) {
-                if ($mockedArray[$key] !== $param) {
+                if (!self::isMatch($mockedArray, $key, $param)) {
                     continue;
                 }
 
@@ -36,7 +36,7 @@ class Mock
         $array = [];
         foreach (self::$mock[$className] as $mockedArray) {
             foreach ($params as $key => $param) {
-                if ($mockedArray[$key] !== $param) {
+                if (!self::isMatch($mockedArray, $key, $param)) {
                     continue;
                 }
 
@@ -45,6 +45,52 @@ class Mock
         }
 
         return $array;
+    }
+
+    private static function isMatch(array $array, string $key, $value): bool
+    {
+        $not = 'not_';
+        $greater = 'greater_';
+        $lower = 'lower_';
+        $like = 'like_';
+        $notLike = 'not_like_';
+        $notIn = 'not_in_';
+
+        if (strpos($key, $not) === 0) {
+            $keyName = substr($key, strlen($not));
+            if ($array[$keyName] === $value) {
+                return false;
+            }
+        } elseif (strpos($key, $greater) === 0) {
+            $keyName = substr($key, strlen($greater));
+            if ($array[$keyName] <= $value) {
+                return false;
+            }
+        } elseif (strpos($key, $lower) === 0) {
+            $keyName = substr($key, strlen($lower));
+            if ($array[$keyName] >= $value) {
+                return false;
+            }
+        } elseif (strpos($key, $like) === 0) {
+            $keyName = substr($key, strlen($like));
+            if (!str_contains($value, $array[$keyName])) {
+                return false;
+            }
+        } elseif (strpos($key, $notLike) === 0) {
+            $keyName = substr($key, strlen($notLike));
+            if (str_contains($value, $array[$keyName])) {
+                return false;
+            }
+        } elseif (strpos($key, $notIn) === 0 && is_array($value)) {
+            $keyName = substr($key, strlen($notIn));
+            if (in_array($array[$keyName], $value)) {
+                return false;
+            }
+        } elseif ($array[$key] !== $value) {
+            return false;
+        }
+
+        return true;
     }
 
     public static function save(ModelAbstract $model): int
