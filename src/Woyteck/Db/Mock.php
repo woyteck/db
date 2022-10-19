@@ -86,6 +86,8 @@ class Mock
             if (in_array($array[$keyName], $value)) {
                 return false;
             }
+        } elseif (!isset($array[$key]) && $value !== null) {
+            return false;
         } elseif ($array[$key] !== $value) {
             return false;
         }
