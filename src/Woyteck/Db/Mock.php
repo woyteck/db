@@ -34,14 +34,17 @@ class Mock
         }
 
         $array = [];
+        $i = 0;
         foreach (self::$mock[$className] as $mockedArray) {
             foreach ($params as $key => $param) {
                 if (!self::isMatch($mockedArray, $key, $param)) {
                     continue;
                 }
 
-                $array[] = $mockedArray;
+                $array[$i] = $mockedArray;
             }
+
+            $i++;
         }
 
         return $array;
