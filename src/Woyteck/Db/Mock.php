@@ -15,11 +15,15 @@ class Mock
         }
 
         foreach (self::$mock[$className] as $mockedArray) {
+            $isMatched = true;
             foreach ($params as $key => $param) {
                 if (!self::isMatch($mockedArray, $key, $param)) {
-                    continue;
+                    $isMatched = false;
                 }
 
+                return $mockedArray;
+            }
+            if ($isMatched) {
                 return $mockedArray;
             }
         }
@@ -36,14 +40,15 @@ class Mock
         $array = [];
         $i = 0;
         foreach (self::$mock[$className] as $mockedArray) {
+            $isMatched = true;
             foreach ($params as $key => $param) {
                 if (!self::isMatch($mockedArray, $key, $param)) {
-                    continue;
+                    $isMatched = false;
                 }
-
+            }
+            if ($isMatched === true) {
                 $array[$i] = $mockedArray;
             }
-
             $i++;
         }
 
