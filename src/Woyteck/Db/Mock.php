@@ -87,7 +87,7 @@ class Mock
                 return false;
             }
         } elseif (!isset($array[$key]) && $value !== null) {
-            return false;
+            return $value === null;
         } elseif ($array[$key] !== $value) {
             return false;
         }
