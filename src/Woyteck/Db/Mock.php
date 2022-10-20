@@ -20,8 +20,6 @@ class Mock
                 if (!self::isMatch($mockedArray, $key, $param)) {
                     $isMatched = false;
                 }
-
-                return $mockedArray;
             }
             if ($isMatched) {
                 return $mockedArray;
