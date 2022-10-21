@@ -95,10 +95,7 @@ class Mock
         } elseif (!isset($array[$key])) {
             return false;
         } elseif (is_array($value)) {
-            var_dump($array[$key]);
-            var_dump($value);
-            var_dump(!in_array($array[$key], $value));
-            return !in_array($array[$key], $value);
+            return in_array($array[$key], $value);
         } elseif ($array[$key] !== $value) {
             return false;
         }
