@@ -94,6 +94,8 @@ class Mock
             }
         } elseif (!isset($array[$key])) {
             return false;
+        } elseif (is_array($value) && !in_array($array[$key], $value)) {
+            return false;
         } elseif ($array[$key] !== $value) {
             return false;
         }
