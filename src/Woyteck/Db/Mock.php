@@ -112,11 +112,14 @@ class Mock
         $lastPrimaryKeyValue = null;
         if (isset(self::$mock[$className]) && is_array(self::$mock[$className])) {
             foreach (self::$mock[$className] as $key => $mockedArray) {
-                if (isset($mockedArray[$primaryKeyField]) && isset($modelArray[$primaryKeyField]) && $mockedArray[$primaryKeyField] === $modelArray[$primaryKeyField]) {
-                    if ($lastPrimaryKeyValue === null || $mockedArray[$primaryKeyField] > $lastPrimaryKeyValue) {
-                        $lastPrimaryKeyValue = $mockedArray[$primaryKeyField];
-                    }
+                if (isset($mockedArray[$primaryKeyField])
+                    && isset($modelArray[$primaryKeyField])
+                    && $mockedArray[$primaryKeyField] === $modelArray[$primaryKeyField]
+                ) {
                     self::$mock[$className][$key] = $modelArray;
+                    if ($lastPrimaryKeyValue === null || $modelArray[$primaryKeyField] > $lastPrimaryKeyValue) {
+                        $lastPrimaryKeyValue = $modelArray[$primaryKeyField];
+                    }
                     $found = $key;
                 }
             }
