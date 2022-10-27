@@ -65,7 +65,7 @@ class Mock
 
         if (strpos($key, $not) === 0) {
             $keyName = substr($key, strlen($not));
-            if (!isset($array[$keyName]) || $array[$keyName] === $value) {
+            if (isset($array[$keyName]) && $array[$keyName] === $value) {
                 return false;
             }
         } elseif (strpos($key, $greater) === 0) {
