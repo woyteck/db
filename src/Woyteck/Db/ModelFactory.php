@@ -198,9 +198,7 @@ class ModelFactory
         $query = "SELECT SQL_CALC_FOUND_ROWS {$implodedColumns} FROM `{$tableName}` {$tableAlias}";
         foreach ($params as $field => $value) {
             $operator = self::OPERATOR_EQUALS;
-            if ($value === null) {
-                $operator = self::OPERATOR_IS_NULL;
-            } elseif (stripos($field, 'is_not_null_') === 0) {
+            if (stripos($field, 'is_not_null_') === 0) {
                 $field = str_replace('is_not_null_', '', $field);
                 $operator = self::OPERATOR_IS_NOT_NULL;
             } elseif (stripos($field, 'greater_') === 0) {
@@ -218,6 +216,8 @@ class ModelFactory
             } elseif (stripos($field, 'not_') === 0) {
                 $field = str_replace('not_', '', $field);
                 $operator = self::OPERATOR_NOT_EQUALS;
+            } elseif ($value === null) {
+                $operator = self::OPERATOR_IS_NULL;
             } elseif (is_array($value)) {
                 $operator = self::OPERATOR_IN;
             } elseif (stripos($field, 'not_in_') === 0 && is_array($value)) {
