@@ -86,7 +86,7 @@ class ModelFactory
      * @param int|null $limit
      * @param int|null $offset
      * @param string|null $sortBy
-     * @param string|null $sortOrder
+     * @param string $sortOrder
      * @return ModelCollection
      * @throws Exception
      */
@@ -108,6 +108,28 @@ class ModelFactory
         }
 
         return $collection;
+    }
+
+    public function getManyUsingQuery(string $className, string $query, array $vars = []): ModelCollection
+    {
+        $modelsArray = new ModelCollection();
+
+        if (Mock::$mock !== null) {
+            if (isset(Mock::$mock[$className]) && is_array(Mock::$mock[$className])) {
+                foreach (Mock::$mock[$className] as $item) {
+                    $modelsArray[] = $this->create($className, $item);
+                }
+            }
+        } else {
+            $statement = $this->getAdapter()->prepare($query);
+            $statement->execute($vars);
+            $rows = $statement->fetchAll();
+            foreach ($rows as $row) {
+                $modelsArray[] = $this->create($className, $row);
+            }
+        }
+
+        return $modelsArray;
     }
 
     public function getModelsCount(): ?int
