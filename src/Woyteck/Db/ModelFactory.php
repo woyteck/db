@@ -14,6 +14,7 @@ class ModelFactory
     private const OPERATOR_GREATER_THAN = '>';
     private const OPERATOR_LOWER_THAN = '<';
     private const OPERATOR_IS_NULL = 'IS';
+    private const OPERATOR_IS_NOT_NULL = 'IS_NOT_NULL';
     private const OPERATOR_LIKE = 'LIKE';
     private const OPERATOR_NOT_LIKE = 'NOT_LIKE';
 
@@ -199,6 +200,9 @@ class ModelFactory
             $operator = self::OPERATOR_EQUALS;
             if ($value === null) {
                 $operator = self::OPERATOR_IS_NULL;
+            } elseif (stripos($field, 'is_not_null_') === 0) {
+                $field = str_replace('is_not_null_', '', $field);
+                $operator = self::OPERATOR_IS_NOT_NULL;
             } elseif (stripos($field, 'greater_') === 0) {
                 $field = str_replace('greater_', '', $field);
                 $operator = self::OPERATOR_GREATER_THAN;
@@ -223,6 +227,8 @@ class ModelFactory
 
             if ($operator == self::OPERATOR_IS_NULL) {
                 $where[] = $tableAlias . '.' . $field . ' IS NULL';
+            } elseif ($operator == self::OPERATOR_IS_NOT_NULL) {
+                $where[] = $tableAlias . '.' . $field . ' IS NOT NULL';
             } elseif ($operator == self::OPERATOR_EQUALS) {
                 $where[] = $tableAlias . '.' . $field . '=:' . $field;
                 $vars[$field] = $value;
