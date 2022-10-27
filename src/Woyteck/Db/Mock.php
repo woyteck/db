@@ -90,7 +90,7 @@ class Mock
             }
         } elseif (strpos($key, $isNotNull) === 0) {
             $keyName = substr($key, strlen($isNotNull));
-            if ($array[$keyName] === null) {
+            if (!isset($array[$keyName])) {
                 return false;
             }
         } elseif (strpos($key, $notIn) === 0 && is_array($value)) {
