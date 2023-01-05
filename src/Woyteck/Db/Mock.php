@@ -80,10 +80,11 @@ class Mock
         $like = 'like_';
         $notLike = 'not_like_';
         $notIn = 'not_in_';
+        $isNotNull = 'is_not_null_';
 
         if (strpos($key, $not) === 0) {
             $keyName = substr($key, strlen($not));
-            if (!isset($array[$keyName]) || $array[$keyName] === $value) {
+            if (isset($array[$keyName]) && $array[$keyName] === $value) {
                 return false;
             }
         } elseif (strpos($key, $greater) === 0) {
@@ -106,11 +107,18 @@ class Mock
             if (str_contains($value, $array[$keyName])) {
                 return false;
             }
+        } elseif (strpos($key, $isNotNull) === 0) {
+            $keyName = substr($key, strlen($isNotNull));
+            if (!isset($array[$keyName])) {
+                return false;
+            }
         } elseif (strpos($key, $notIn) === 0 && is_array($value)) {
             $keyName = substr($key, strlen($notIn));
             if (in_array($array[$keyName], $value)) {
                 return false;
             }
+        } elseif ($value === null) {
+            return !isset($array[$key]);
         } elseif (!isset($array[$key])) {
             return false;
         } elseif (is_array($value)) {

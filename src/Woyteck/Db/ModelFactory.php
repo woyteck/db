@@ -14,6 +14,7 @@ class ModelFactory
     private const OPERATOR_GREATER_THAN = '>';
     private const OPERATOR_LOWER_THAN = '<';
     private const OPERATOR_IS_NULL = 'IS';
+    private const OPERATOR_IS_NOT_NULL = 'IS_NOT_NULL';
     private const OPERATOR_LIKE = 'LIKE';
     private const OPERATOR_NOT_LIKE = 'NOT_LIKE';
 
@@ -85,7 +86,7 @@ class ModelFactory
      * @param int|null $limit
      * @param int|null $offset
      * @param string|null $sortBy
-     * @param string|null $sortOrder
+     * @param string $sortOrder
      * @return ModelCollection
      * @throws Exception
      */
@@ -107,6 +108,28 @@ class ModelFactory
         }
 
         return $collection;
+    }
+
+    public function getManyUsingQuery(string $className, string $query, array $vars = []): ModelCollection
+    {
+        $modelsArray = new ModelCollection();
+
+        if (Mock::$mock !== null) {
+            if (isset(Mock::$mock[$className]) && is_array(Mock::$mock[$className])) {
+                foreach (Mock::$mock[$className] as $item) {
+                    $modelsArray[] = $this->create($className, $item);
+                }
+            }
+        } else {
+            $statement = $this->getAdapter()->prepare($query);
+            $statement->execute($vars);
+            $rows = $statement->fetchAll();
+            foreach ($rows as $row) {
+                $modelsArray[] = $this->create($className, $row);
+            }
+        }
+
+        return $modelsArray;
     }
 
     public function delete(string $className, array $params = [])
@@ -207,8 +230,9 @@ class ModelFactory
         $query = "SELECT SQL_CALC_FOUND_ROWS {$implodedColumns} FROM `{$tableName}` {$tableAlias}";
         foreach ($params as $field => $value) {
             $operator = self::OPERATOR_EQUALS;
-            if ($value === null) {
-                $operator = self::OPERATOR_IS_NULL;
+            if (stripos($field, 'is_not_null_') === 0) {
+                $field = str_replace('is_not_null_', '', $field);
+                $operator = self::OPERATOR_IS_NOT_NULL;
             } elseif (stripos($field, 'greater_') === 0) {
                 $field = str_replace('greater_', '', $field);
                 $operator = self::OPERATOR_GREATER_THAN;
@@ -224,6 +248,8 @@ class ModelFactory
             } elseif (stripos($field, 'not_') === 0) {
                 $field = str_replace('not_', '', $field);
                 $operator = self::OPERATOR_NOT_EQUALS;
+            } elseif ($value === null) {
+                $operator = self::OPERATOR_IS_NULL;
             } elseif (is_array($value)) {
                 $operator = self::OPERATOR_IN;
             } elseif (stripos($field, 'not_in_') === 0 && is_array($value)) {
@@ -233,6 +259,8 @@ class ModelFactory
 
             if ($operator == self::OPERATOR_IS_NULL) {
                 $where[] = $tableAlias . '.' . $field . ' IS NULL';
+            } elseif ($operator == self::OPERATOR_IS_NOT_NULL) {
+                $where[] = $tableAlias . '.' . $field . ' IS NOT NULL';
             } elseif ($operator == self::OPERATOR_EQUALS) {
                 $where[] = $tableAlias . '.' . $field . '=:' . $field;
                 $vars[$field] = $value;
@@ -313,8 +341,9 @@ class ModelFactory
         $query = "DELETE FROM `{$tableName}` ";
         foreach ($params as $field => $value) {
             $operator = self::OPERATOR_EQUALS;
-            if ($value === null) {
-                $operator = self::OPERATOR_IS_NULL;
+            if (stripos($field, 'is_not_null_') === 0) {
+                $field = str_replace('is_not_null_', '', $field);
+                $operator = self::OPERATOR_IS_NOT_NULL;
             } elseif (stripos($field, 'greater_') === 0) {
                 $field = str_replace('greater_', '', $field);
                 $operator = self::OPERATOR_GREATER_THAN;
@@ -330,6 +359,8 @@ class ModelFactory
             } elseif (stripos($field, 'not_') === 0) {
                 $field = str_replace('not_', '', $field);
                 $operator = self::OPERATOR_NOT_EQUALS;
+            } elseif ($value === null) {
+                $operator = self::OPERATOR_IS_NULL;
             } elseif (is_array($value)) {
                 $operator = self::OPERATOR_IN;
             } elseif (stripos($field, 'not_in_') === 0 && is_array($value)) {
@@ -339,6 +370,8 @@ class ModelFactory
 
             if ($operator == self::OPERATOR_IS_NULL) {
                 $where[] = $field . ' IS NULL';
+            } elseif ($operator == self::OPERATOR_IS_NOT_NULL) {
+                $where[] = $field . ' IS NOT NULL';
             } elseif ($operator == self::OPERATOR_EQUALS) {
                 $where[] = $field . '=:' . $field;
                 $vars[$field] = $value;
