@@ -109,6 +109,16 @@ class ModelFactory
         return $collection;
     }
 
+    public function delete(string $className, array $params = [])
+    {
+        if (Mock::$mock !== null) {
+            Mock::delete($className, $params);
+        } else {
+            $statement = $this->queryDelete($className, $params);
+            $statement->execute();
+        }
+    }
+
     public function getModelsCount(): ?int
     {
         return $this->modelsCount;
@@ -162,11 +172,11 @@ class ModelFactory
      * @param int|null $limit
      * @param int|null $offset
      * @param string|null $orderBy
-     * @param string|null $order
+     * @param string $order
      * @return PDOStatement
      * @throws Exception
      */
-    private function query(string $className, array $params = [], bool $forUpdate = false, int $limit = null, int $offset = null, string $orderBy = null, string $order = 'ASC')
+    private function query(string $className, array $params = [], bool $forUpdate = false, int $limit = null, int $offset = null, string $orderBy = null, string $order = 'ASC'): PDOStatement
     {
         /** @var ModelAbstract $className */
         $tableName = $className::$tableName;
@@ -285,5 +295,84 @@ class ModelFactory
         $statement->execute($vars);
 
         return $statement;
+    }
+
+    /**
+     * @param string $className
+     * @param array $params
+     *
+     * @throws Exception
+     */
+    private function queryDelete(string $className, array $params = []): void
+    {
+        /** @var ModelAbstract $className */
+        $tableName = $className::$tableName;
+        $where = [];
+        $vars = [];
+
+        $query = "DELETE FROM `{$tableName}` ";
+        foreach ($params as $field => $value) {
+            $operator = self::OPERATOR_EQUALS;
+            if ($value === null) {
+                $operator = self::OPERATOR_IS_NULL;
+            } elseif (stripos($field, 'greater_') === 0) {
+                $field = str_replace('greater_', '', $field);
+                $operator = self::OPERATOR_GREATER_THAN;
+            } elseif (stripos($field, 'lower_') === 0) {
+                $field = str_replace('lower_', '', $field);
+                $operator = self::OPERATOR_LOWER_THAN;
+            } elseif (stripos($field, 'like_') === 0) {
+                $field = str_replace('like_', '', $field);
+                $operator = self::OPERATOR_LIKE;
+            } elseif (stripos($field, 'not_like_') === 0) {
+                $field = str_replace('not_like_', '', $field);
+                $operator = self::OPERATOR_NOT_LIKE;
+            } elseif (stripos($field, 'not_') === 0) {
+                $field = str_replace('not_', '', $field);
+                $operator = self::OPERATOR_NOT_EQUALS;
+            } elseif (is_array($value)) {
+                $operator = self::OPERATOR_IN;
+            } elseif (stripos($field, 'not_in_') === 0 && is_array($value)) {
+                $field = str_replace('not_in_', '', $field);
+                $operator = self::OPERATOR_NOT_IN;
+            }
+
+            if ($operator == self::OPERATOR_IS_NULL) {
+                $where[] = $field . ' IS NULL';
+            } elseif ($operator == self::OPERATOR_EQUALS) {
+                $where[] = $field . '=:' . $field;
+                $vars[$field] = $value;
+            } elseif ($operator == self::OPERATOR_NOT_EQUALS) {
+                $where[] = $field . '!=:' . $field;
+                $vars[$field] = $value;
+            } elseif ($operator == self::OPERATOR_GREATER_THAN) {
+                $where[] = $field . '>:' . $field;
+                $vars[$field] = $value;
+            } elseif ($operator == self::OPERATOR_LOWER_THAN) {
+                $where[] = $field . '<:' . $field;
+                $vars[$field] = $value;
+            } elseif ($operator == self::OPERATOR_IN) {
+                $where[] = $field . " IN ('" . implode("','", $value) . "')";
+            } elseif ($operator == self::OPERATOR_NOT_IN) {
+                $where[] = $field . " NOT IN ('" . implode("','", $value) . "')";
+            } elseif ($operator == self::OPERATOR_LIKE) {
+                $where[] = $field . ' LIKE :' . $field;
+                $vars[$field] = $value;
+            } elseif ($operator == self::OPERATOR_NOT_LIKE) {
+                $where[] = $field . ' NOT LIKE :' . $field;
+                $vars[$field] = $value;
+            }
+        }
+
+        if (count($where) === 0) {
+            throw new Exception('I will not allow you to delete anything without any WHERE params!');
+        }
+
+        if (count($where) > 0) {
+            $query .= ' WHERE ' . implode(' AND ', $where);
+        }
+
+        $statement = $this->pdo->prepare($query);
+        $statement->execute($vars);
     }
 }

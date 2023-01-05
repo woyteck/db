@@ -53,6 +53,25 @@ class Mock
         return $array;
     }
 
+    public static function delete($className, array $params = []): void
+    {
+        if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
+            return;
+        }
+
+        foreach (self::$mock[$className] as $rowKey => $mockedArray) {
+            $isMatched = true;
+            foreach ($params as $key => $param) {
+                if (!self::isMatch($mockedArray, $key, $param)) {
+                    $isMatched = false;
+                }
+            }
+            if ($isMatched) {
+                unset(self::$mock[$className][$rowKey]);
+            }
+        }
+    }
+
     private static function isMatch(array $array, string $key, $value): bool
     {
         $not = 'not_';
