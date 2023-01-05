@@ -132,13 +132,12 @@ class ModelFactory
         return $modelsArray;
     }
 
-    public function delete(string $className, array $params = [])
+    public function delete(string $className, array $params = []): void
     {
         if (Mock::$mock !== null) {
             Mock::delete($className, $params);
         } else {
-            $statement = $this->queryDelete($className, $params);
-            $statement->execute();
+            $this->queryDelete($className, $params);
         }
     }
 
