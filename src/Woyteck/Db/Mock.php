@@ -186,7 +186,7 @@ class Mock
             throw new Exception('No transaction to commit');
         }
 
-        self::$mock = self::$transaction;
+        self::$transaction = null;
     }
 
     public static function rollback()
@@ -195,6 +195,7 @@ class Mock
             throw new Exception('No transaction to commit');
         }
 
+        self::$mock = self::$transaction;
         self::$transaction = null;
     }
 
