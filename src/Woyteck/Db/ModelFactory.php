@@ -154,6 +154,7 @@ class ModelFactory
     public function beginTransaction(): void
     {
         if (Mock::$mock !== null) {
+            Mock::beginTransaction();
             return;
         }
 
@@ -163,6 +164,7 @@ class ModelFactory
     public function rollBack(): void
     {
         if (Mock::$mock !== null) {
+            Mock::rollback();
             return;
         }
 
@@ -172,6 +174,7 @@ class ModelFactory
     public function commit(): void
     {
         if (Mock::$mock !== null) {
+            Mock::commit();
             return;
         }
 

@@ -8,8 +8,15 @@ class Mock
     /** @var array */
     public static $mock;
 
+    public static $throwException = false;
+
+    /** @var array */
+    private static $transaction;
+
     public static function getOne($className, array $params = []): ?array
     {
+        self::throwExceptionIfSet();
+
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return null;
         }
@@ -31,6 +38,8 @@ class Mock
 
     public static function getMany($className, array $params = []): array
     {
+        self::throwExceptionIfSet();
+
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return [];
         }
@@ -55,6 +64,8 @@ class Mock
 
     public static function delete($className, array $params = []): void
     {
+        self::throwExceptionIfSet();
+
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return;
         }
@@ -158,5 +169,40 @@ class Mock
         }
 
         return $modelArray[$primaryKeyField];
+    }
+
+    public static function beginTransaction()
+    {
+        if (self::$transaction !== null) {
+            throw new Exception('Transaction already begun');
+        }
+
+        self::$transaction = self::$mock;
+    }
+
+    public static function commit()
+    {
+        if (self::$transaction === null) {
+            throw new Exception('No transaction to commit');
+        }
+
+        self::$mock = self::$transaction;
+    }
+
+    public static function rollback()
+    {
+        if (self::$transaction === null) {
+            throw new Exception('No transaction to commit');
+        }
+
+        self::$transaction = null;
+    }
+
+    private static function throwExceptionIfSet()
+    {
+        if (self::$throwException === true) {
+            self::$throwException = false;
+            throw new Exception('Mock exception');
+        }
     }
 }
