@@ -8,15 +8,21 @@ class Mock
     /** @var array */
     public static $mock;
 
-    public static $throwExceptionOnSelect = false;
-    public static $throwExceptionOnInsertUpdate = false;
+    /** @var bool ModelAbstract */
+    public static $throwExceptionOnSelect;
+
+    /** @var bool ModelAbstract */
+    public static $throwExceptionOnInsertUpdate;
+
+    /** @var bool ModelAbstract */
+    public static $throwExceptionOnDelete;
 
     /** @var array */
     private static $transaction;
 
     public static function getOne($className, array $params = []): ?array
     {
-        self::throwExceptionOnSelectIfSet();
+        self::throwExceptionOnSelectIfSet($className);
 
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return null;
@@ -39,7 +45,7 @@ class Mock
 
     public static function getMany($className, array $params = []): array
     {
-        self::throwExceptionOnSelectIfSet();
+        self::throwExceptionOnSelectIfSet($className);
 
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return [];
@@ -65,7 +71,7 @@ class Mock
 
     public static function delete($className, array $params = []): void
     {
-        self::throwExceptionOnSelectIfSet();
+        self::throwExceptionOnDeleteIfSet($className);
 
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return;
@@ -144,7 +150,7 @@ class Mock
 
     public static function save(ModelAbstract $model): int
     {
-        self::throwExceptionOnInsertUpdateIfSet();
+        self::throwExceptionOnInsertUpdateIfSet($model::class);
 
         $modelArray = $model->toArray();
 
@@ -202,19 +208,27 @@ class Mock
         self::$transaction = null;
     }
 
-    private static function throwExceptionOnSelectIfSet()
+    private static function throwExceptionOnSelectIfSet(string $modelClass)
     {
-        if (self::$throwExceptionOnSelect === true) {
-            self::$throwExceptionOnSelect = false;
+        if (self::$throwExceptionOnSelect === $modelClass) {
+            self::$throwExceptionOnSelect = null;
             throw new Exception('Mock exception on SELECT');
         }
     }
 
-    private static function throwExceptionOnInsertUpdateIfSet()
+    private static function throwExceptionOnInsertUpdateIfSet(string $modelClass)
     {
-        if (self::$throwExceptionOnInsertUpdate === true) {
-            self::$throwExceptionOnInsertUpdate = false;
+        if (self::$throwExceptionOnInsertUpdate === $modelClass) {
+            self::$throwExceptionOnInsertUpdate = null;
             throw new Exception('Mock exception on INSERT/UPDATE');
+        }
+    }
+
+    private static function throwExceptionOnDeleteIfSet(string $modelClass)
+    {
+        if (self::$throwExceptionOnDelete === $modelClass) {
+            self::$throwExceptionOnDelete = null;
+            throw new Exception('Mock exception on DELETE');
         }
     }
 }
