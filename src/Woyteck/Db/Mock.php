@@ -8,14 +8,15 @@ class Mock
     /** @var array */
     public static $mock;
 
-    public static $throwException = false;
+    public static $throwExceptionOnSelect = false;
+    public static $throwExceptionOnInsertUpdate = false;
 
     /** @var array */
     private static $transaction;
 
     public static function getOne($className, array $params = []): ?array
     {
-        self::throwExceptionIfSet();
+        self::throwExceptionOnSelect();
 
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return null;
@@ -38,7 +39,7 @@ class Mock
 
     public static function getMany($className, array $params = []): array
     {
-        self::throwExceptionIfSet();
+        self::throwExceptionOnSelect();
 
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return [];
@@ -64,7 +65,7 @@ class Mock
 
     public static function delete($className, array $params = []): void
     {
-        self::throwExceptionIfSet();
+        self::throwExceptionOnSelect();
 
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return;
@@ -143,6 +144,8 @@ class Mock
 
     public static function save(ModelAbstract $model): int
     {
+        self::throwExceptionOnInsertUpdateIfSet();
+
         $modelArray = $model->toArray();
 
         $className = get_class($model);
@@ -199,11 +202,19 @@ class Mock
         self::$transaction = null;
     }
 
-    private static function throwExceptionIfSet()
+    private static function throwExceptionOnSelectIfSet()
     {
-        if (self::$throwException === true) {
-            self::$throwException = false;
-            throw new Exception('Mock exception');
+        if (self::$throwExceptionOnSelect === true) {
+            self::$throwExceptionOnSelect = false;
+            throw new Exception('Mock exception on SELECT');
+        }
+    }
+
+    private static function throwExceptionOnInsertUpdateIfSet()
+    {
+        if (self::$throwExceptionOnInsertUpdate === true) {
+            self::$throwExceptionOnInsertUpdate = false;
+            throw new Exception('Mock exception on INSERT/UPDATE');
         }
     }
 }
