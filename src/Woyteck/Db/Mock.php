@@ -16,7 +16,7 @@ class Mock
 
     public static function getOne($className, array $params = []): ?array
     {
-        self::throwExceptionOnSelect();
+        self::throwExceptionOnSelectIfSet();
 
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return null;
@@ -39,7 +39,7 @@ class Mock
 
     public static function getMany($className, array $params = []): array
     {
-        self::throwExceptionOnSelect();
+        self::throwExceptionOnSelectIfSet();
 
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return [];
@@ -65,7 +65,7 @@ class Mock
 
     public static function delete($className, array $params = []): void
     {
-        self::throwExceptionOnSelect();
+        self::throwExceptionOnSelectIfSet();
 
         if (!isset(self::$mock[$className]) || !is_array(self::$mock[$className])) {
             return;
