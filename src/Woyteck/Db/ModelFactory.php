@@ -358,6 +358,9 @@ class ModelFactory
             } elseif (stripos($field, 'not_like_') === 0) {
                 $field = str_replace('not_like_', '', $field);
                 $operator = self::OPERATOR_NOT_LIKE;
+            } elseif (stripos($field, 'not_in_') === 0 && is_array($value)) {
+                $field = str_replace('not_in_', '', $field);
+                $operator = self::OPERATOR_NOT_IN;
             } elseif (stripos($field, 'not_') === 0) {
                 $field = str_replace('not_', '', $field);
                 $operator = self::OPERATOR_NOT_EQUALS;
@@ -365,9 +368,6 @@ class ModelFactory
                 $operator = self::OPERATOR_IS_NULL;
             } elseif (is_array($value)) {
                 $operator = self::OPERATOR_IN;
-            } elseif (stripos($field, 'not_in_') === 0 && is_array($value)) {
-                $field = str_replace('not_in_', '', $field);
-                $operator = self::OPERATOR_NOT_IN;
             }
 
             if ($operator == self::OPERATOR_IS_NULL) {
