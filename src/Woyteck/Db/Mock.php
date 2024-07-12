@@ -20,6 +20,14 @@ class Mock
     /** @var array */
     private static $transaction;
 
+    public static function reset() {
+        self::$mock = [];
+        self::$throwExceptionOnSelect = null;
+        self::$throwExceptionOnInsertUpdate = null;
+        self::$throwExceptionOnDelete = null;
+        self::$transaction = null;
+    }
+
     public static function getOne($className, array $params = []): ?array
     {
         self::throwExceptionOnSelectIfSet($className);
